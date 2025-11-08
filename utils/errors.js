@@ -1,0 +1,32 @@
+import {
+  sendBadRequest,
+  sendNotFound,
+  sendServerError,
+} from './sendResponse.js';
+
+export class ValidationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
+export class NotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NotFoundError';
+  }
+}
+
+export const handleError = (res, err) => {
+  console.error(err.stack || err);
+
+  switch (err.name) {
+    case 'ValidationError':
+      return sendBadRequest(res, { message: err.message });
+    case 'NotFoundError':
+      return sendNotFound(res, { message: err.message });
+    default:
+      return sendServerError(res, { message: 'Internal Server Error' });
+  }
+};
