@@ -45,3 +45,26 @@ export const uploadFundiProfileImage = async (file) => {
     throw new Error('Unable to upload profile image');
   }
 };
+
+export function extractPublicId(url) {
+  if (!url) return null;
+
+  // Example:
+  // https://res.cloudinary.com/dwpoxl1bc/image/upload/v12345/fundi_profiles/abc123.jpg
+  const parts = url.split('/');
+  const filename = parts[parts.length - 1]; // abc123.jpg
+  const folder = parts[parts.length - 2]; // fundi_profiles
+
+  const publicId = `${folder}/${filename.replace(/\.[^/.]+$/, '')}`;
+  return publicId;
+}
+
+export async function deleteFromCloudinary(publicId) {
+  try {
+    const result = await cloudinary.uploader.destroy(publicId);
+    return result;
+  } catch (error) {
+    console.error('Cloudinary delete failed:', error);
+    return null; // OR throw error
+  }
+}
