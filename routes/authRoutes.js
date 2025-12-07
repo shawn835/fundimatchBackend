@@ -7,6 +7,8 @@ import { updateFundi } from '../controllers/userController/updateFundi.js';
 import { handleVerifyCode } from '../Services/verifyEmail.js';
 import { resendCode } from '../Services/resendCode.js';
 import { getMeController } from '../controllers/userController/getMe.js';
+import { deleteUser } from '../controllers/userController/deleteUser.js';
+import { logoutUser } from '../controllers/userController/logoutUser.js';
 export const routes = [
   {
     method: 'POST',
@@ -52,7 +54,18 @@ export const routes = [
     protected: true,
     handler: updatePassword,
   },
-  ,
+  {
+    method: 'DELETE',
+    route: '/api/delete/user',
+    protected: true,
+    handler: deleteUser,
+  },
+  {
+    method: 'DELETE',
+    route: '/api/logout/user',
+    protected: true,
+    handler: logoutUser,
+  },
   {
     method: 'GET',
     route: '/api/me',

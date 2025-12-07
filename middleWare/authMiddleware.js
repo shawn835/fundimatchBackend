@@ -20,6 +20,10 @@ export const requireAuth = async (req, res, next) => {
     const user = await findUserById(decoded.id);
     if (!user) throw new UnauthorizedError('user no longer exists');
 
+    if (decoded.version !== user.tokenVersion) {
+      throw new UnauthorizedError('token revoked');
+    }
+
     // if (user.isVerified === false) {
     //   throw new UnauthorizedError('Please verify your email first');
     // }

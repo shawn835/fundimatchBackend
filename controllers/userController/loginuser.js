@@ -1,7 +1,11 @@
-import { findUserByPhone } from '../../models/userModel.js';
+import { findUser } from '../../models/userModel.js';
 import { handleError } from '../../utils/errors.js';
 import { parseJsonBody } from '../../utils/parseReqBody.js';
-import { sendBadRequest, sendSuccess } from '../../utils/sendResponse.js';
+import {
+  sendBadRequest,
+  sendSuccess,
+  sendNotFound,
+} from '../../utils/sendResponse.js';
 import { comparePassword } from '../../utils/hash.js';
 import { setCookie } from '../../utils/Cookies.js';
 import { validateLogin } from '../../utils/validator.js';
@@ -13,18 +17,29 @@ export const loginUser = async (req, res) => {
     const rawBody = await parseJsonBody(req);
     const { phone, password } = validateLogin(rawBody);
 
-    const user = await findUserByPhone(phone);
+    const user = await findUser({ phone });
 
     if (!user) {
       return sendNotFound(res, { message: 'User not found, please register' });
     }
+
+    // if (user.isVerified === false) {
+    //   return sendBadRequest(res, {
+    //     message: 'Please verify your account first',
+    //   });
+    // }
 
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
       return sendBadRequest(res, { message: 'incorrect password' });
     }
 
-    const token = generateToken({ id: user._id });
+    const payLoad = {
+      id: user._id,
+      version: user.tokenVersion,
+    };
+
+    const token = generateToken(payLoad);
 
     const maxAge = Number(process.env.COOKIE_MAX_AGE);
 

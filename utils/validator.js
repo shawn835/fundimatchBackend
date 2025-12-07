@@ -44,7 +44,7 @@ export const validateCustomer = (rawBody, { requirePassword = true } = {}) => {
   if (!validatePhoneNumber(cleaned.phone))
     throw new ValidationError('invalid phone');
 
-  if (requirePassword) validatePassword(password);
+  if (requirePassword) validatePassword(cleaned.password);
 
   cleaned.phone = normalizedPhoneNumber(cleaned.phone);
 

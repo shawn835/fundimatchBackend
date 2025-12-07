@@ -1,8 +1,4 @@
-import {
-  findUserByEmail,
-  findUserByPhone,
-  insertUser,
-} from '../../models/userModel.js';
+import { findUser, insertUser } from '../../models/userModel.js';
 import { handleError } from '../../utils/errors.js';
 import { uploadFundiProfileImage } from '../../utils/handleFilesUpload.js';
 import { hashPassword } from '../../utils/hash.js';
@@ -45,14 +41,11 @@ export const registerFundiController = async (req, res) => {
         category,
       } = validateFundi(fields, { requirePassword: true });
 
-      const existingPhone = await findUserByPhone(phone);
-      if (existingPhone) {
-        return sendConflict(res, { message: 'Phone number already in use' });
-      }
-
-      const existingEmail = await findUserByEmail(email);
-      if (existingEmail) {
-        return sendConflict(res, { message: 'Email already in use' });
+      const alreadyExists = await findUser({ email, phone });
+      if (alreadyExists) {
+        return sendConflict(res, {
+          message: 'Phone number or email already in use',
+        });
       }
 
       const profileUrl = await uploadFundiProfileImage(profile);
@@ -70,6 +63,7 @@ export const registerFundiController = async (req, res) => {
         location,
         password: hashedPassword,
         isVerified: false,
+        tokenVersion: 0,
         role: 'fundi',
         createdAt: new Date(),
       };

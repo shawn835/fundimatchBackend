@@ -62,3 +62,47 @@ export const updateUserById = async (userId, updateData) => {
     throw err;
   }
 };
+
+export const deleteUserById = async (userId) => {
+  try {
+    const usersCollection = await readCollection('users');
+
+    await usersCollection.updateOne(
+      { _id: new ObjectId(userId) },
+      {
+        $set: {
+          isDeleted: true,
+          deletedAt: new Date(),
+        },
+      },
+    );
+  } catch (err) {
+    console.error('Error deleting user:', err);
+    throw err;
+  }
+};
+
+export const findUser = async ({ email, phone }) => {
+  try {
+    const usersCollection = await readCollection('users');
+
+    // Build query dynamically
+    const query = { isDeleted: { $ne: true } };
+
+    if (email && phone) {
+      query.$or = [{ email: email.trim().toLowerCase() }, { phone }];
+    } else if (email) {
+      query.email = email.trim().toLowerCase();
+    } else if (phone) {
+      query.phone = phone;
+    } else {
+      throw new Error('Email or phone required to find user');
+    }
+
+    const user = await usersCollection.findOne(query);
+    return user;
+  } catch (error) {
+    console.error('Error finding user:', error);
+    throw error;
+  }
+};

@@ -1,8 +1,4 @@
-import {
-  findUserByEmail,
-  findUserByPhone,
-  insertUser,
-} from '../../models/userModel.js';
+import { findUser, insertUser } from '../../models/userModel.js';
 import { handleError } from '../../utils/errors.js';
 import { hashPassword } from '../../utils/hash.js';
 import { parseJsonBody } from '../../utils/parseReqBody.js';
@@ -17,15 +13,12 @@ export const registerUserController = async (req, res) => {
     const { name, email, password, estate, phone } = validateCustomer(rawBody, {
       requirePassword: true,
     });
-    const existingPhone = await findUserByPhone(phone);
 
-    if (existingPhone) {
-      return sendConflict(res, { message: 'phone number already in use' });
-    }
-
-    const existingEmail = await findUserByEmail(email);
-    if (existingEmail) {
-      return sendConflict(res, { message: 'email already in use' });
+    const alreadyExists = await findUser({ email, phone });
+    if (alreadyExists) {
+      return sendConflict(res, {
+        message: 'Phone number or email already in use',
+      });
     }
 
     const hashed = await hashPassword(password);
@@ -38,10 +31,11 @@ export const registerUserController = async (req, res) => {
       password: hashed,
       isVerified: false,
       role: 'customer',
+      tokenVersion: 0,
       createdAt: new Date(),
     };
     await insertUser(customer);
-    await sendCode(email);
+    // await sendCode(email);
 
     return sendCreated(res, {
       message: 'Registered! Check your email for a code',

@@ -35,7 +35,7 @@ export const handleError = (res, err) => {
     case 'NotFoundError':
       return sendNotFound(res, { message: err.message });
     case ' UnauthorizedError':
-      return sendUnauthorized({ message: err.message });
+      return sendUnauthorized(res, { message: err.message });
     default:
       return sendServerError(res, { message: 'Internal Server Error' });
   }

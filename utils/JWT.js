@@ -1,13 +1,14 @@
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const SECRETE = process.env.JWT_SECRETE;
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "180d";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '180d';
 
 //create the tokjen
 export const generateToken = (payload) => {
-  return jwt.sign(payload, SECRETE, { expiresIn: JWT_EXPIRES_IN });
+  const token = jwt.sign(payload, SECRETE, { expiresIn: JWT_EXPIRES_IN });
+  return token;
 };
 
 export const verifyToken = (token) => {
@@ -15,7 +16,7 @@ export const verifyToken = (token) => {
     const decoded = jwt.verify(token, SECRETE);
     return decoded;
   } catch (error) {
-    console.error("JWT verification failed:", error.message);
+    console.error('JWT verification failed:', error.message);
     return null;
   }
 };

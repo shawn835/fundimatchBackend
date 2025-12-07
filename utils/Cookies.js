@@ -1,3 +1,6 @@
+import { readCollection } from '../Config/db.js';
+import { ObjectId } from 'mongodb';
+
 export function setCookie(res, name, value) {
   const cookieOptions = [
     `${name}=${value}`,
@@ -16,13 +19,21 @@ export function setCookie(res, name, value) {
   res.setHeader('Set-Cookie', cookieOptions.join('; '));
 }
 
-export function clearCookie(res, name) {
+export const revokeTokenAndClearCookie = async (res, userId) => {
+  const usersCollection = await readCollection('users');
+
+   const _id = typeof userId === 'string' ? new ObjectId(userId) : userId;
+
+  // increvment tokenVersion to invalidate all existing JWTs
+  await usersCollection.updateOne({ _id }, { $inc: { tokenVersion: 1 } });
+
+  // Clear cookie in response
   const cookieOptions = [
-    `${name}=; HttpOnly; Path=/; Max-Age=0`,
+    `token=; HttpOnly; Path=/; Max-Age=0`,
     process.env.NODE_ENV === 'production'
       ? 'Secure; SameSite=None'
       : 'SameSite=Lax',
   ];
 
   res.setHeader('Set-Cookie', cookieOptions.join('; '));
-}
+};
