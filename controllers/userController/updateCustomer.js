@@ -1,19 +1,25 @@
 import {
   findUserById,
-  findUserByEmail,
-  findUserByPhone,
   updateUserById,
+  findUser,
 } from '../../models/userModel.js';
 import { handleError } from '../../utils/errors.js';
 import { parseJsonBody } from '../../utils/parseReqBody.js';
-import { sendConflict, sendSuccess } from '../../utils/sendResponse.js';
+import {
+  sendConflict,
+  sendSuccess,
+  sendUnauthorized,
+} from '../../utils/sendResponse.js';
 import { validateCustomer } from '../../utils/validator.js';
 
 //update profile
 export const updateCustomer = async (req, res) => {
   try {
-    const authUser = req.user;
-    const dbUser = await findUserById(authUser.id);
+    const dbUser = await findUserById(req.user.id);
+
+    if (!dbUser) {
+      return sendUnauthorized(res, { message: 'unauthorized' });
+    }
 
     const body = await parseJsonBody(req);
 
@@ -23,7 +29,7 @@ export const updateCustomer = async (req, res) => {
 
     // Check uniqueness for email
     if (email && email !== dbUser.email) {
-      const existing = await findUserByEmail(email);
+      const existing = await findUser({ email });
       if (existing) {
         return sendConflict(res, { message: 'Email already in use' });
       }
@@ -31,7 +37,7 @@ export const updateCustomer = async (req, res) => {
 
     // Check uniqueness for phone
     if (phone && phone !== dbUser.phone) {
-      const existing = await findUserByPhone(phone);
+      const existing = await findUser({ phone });
       if (existing) {
         return sendConflict(res, { message: 'Phone already in use' });
       }

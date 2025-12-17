@@ -28,7 +28,7 @@ export const requireAuth = async (req, res, next) => {
     //   throw new UnauthorizedError('Please verify your email first');
     // }
 
-    // Always attach common fields
+    // attach id
     req.user = {
       id: user._id.toString(),
     };

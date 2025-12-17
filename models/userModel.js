@@ -11,36 +11,39 @@ export const insertUser = async (user) => {
   }
 };
 
-export const findUserByPhone = async (phone) => {
-  try {
-    const usersCollection = await readCollection('users');
-    const user = await usersCollection.findOne({
-      phone,
-    });
-    return user;
-  } catch (err) {
-    console.error('error finding user by phone:', err);
-    throw err;
-  }
-};
+// export const findUserByPhone = async (phone) => {
+//   try {
+//     const usersCollection = await readCollection('users');
+//     const user = await usersCollection.findOne({
+//       phone,
+//     });
+//     return user;
+//   } catch (err) {
+//     console.error('error finding user by phone:', err);
+//     throw err;
+//   }
+// };
 
-export const findUserByEmail = async (email) => {
-  try {
-    const usersCollection = await readCollection('users');
-    const user = await usersCollection.findOne({
-      email: email.trim().toLowerCase(),
-    });
-    return user;
-  } catch (err) {
-    console.error('error finding user by email:', err);
-    throw err;
-  }
-};
+// export const findUserByEmail = async (email) => {
+//   try {
+//     const usersCollection = await readCollection('users');
+//     const user = await usersCollection.findOne({
+//       email: email.trim().toLowerCase(),
+//     });
+//     return user;
+//   } catch (err) {
+//     console.error('error finding user by email:', err);
+//     throw err;
+//   }
+// };
 
 export const findUserById = async (userId) => {
   try {
     const usersCollection = await readCollection('users');
-    const user = await usersCollection.findOne({ _id: new ObjectId(userId) });
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(userId),
+      isDeleted: { $ne: true },
+    });
     return user;
   } catch (err) {
     console.error('Error finding user by ID:', err);

@@ -1,6 +1,6 @@
 import { sendSuccess, sendBadRequest } from '../utils/sendResponse.js';
 import { parseJsonBody } from '../utils/parseReqBody.js';
-import { findUserByEmail } from '../models/userModel.js';
+import { findUser } from '../models/userModel.js';
 import { sendCode } from './sendCode.js';
 import { handleError } from '../utils/errors.js';
 
@@ -9,7 +9,7 @@ export const resendCode = async (req, res) => {
     const { email } = await parseJsonBody(req);
 
     const normalizedEmail = email.toLowerCase();
-    const user = await findUserByEmail(normalizedEmail);
+    const user = await findUser({ normalizedEmail });
     if (!user) {
       return sendNotFound(res, { message: 'No account with that email.' });
     }

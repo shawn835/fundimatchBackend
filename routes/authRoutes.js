@@ -9,6 +9,10 @@ import { resendCode } from '../Services/resendCode.js';
 import { getMeController } from '../controllers/userController/getMe.js';
 import { deleteUser } from '../controllers/userController/deleteUser.js';
 import { logoutUser } from '../controllers/userController/logoutUser.js';
+import { createJob } from '../controllers/jobs/createJob.js';
+import { updateJob } from '../controllers/jobs/updateJob.js';
+import { deleteJob } from '../controllers/jobs/deleteJob.js';
+import { applyJob } from '../controllers/jobs/applyJob.js';
 export const routes = [
   {
     method: 'POST',
@@ -71,5 +75,29 @@ export const routes = [
     route: '/api/me',
     protected: true,
     handler: getMeController,
+  },
+  {
+    method: 'POST',
+    route: '/api/jobs/create',
+    protected: true,
+    handler: createJob,
+  },
+  {
+    method: 'PUT',
+    route: '/api/jobs/:id',
+    protected: true,
+    handler: updateJob,
+  },
+  {
+    method: 'DELETE',
+    route: '/api/jobs/:id',
+    protected: true,
+    handler: deleteJob,
+  },
+  {
+    method: 'POST',
+    route: '/api/jobs/:id/apply',
+    protected: true,
+    handler: applyJob,
   },
 ];

@@ -4,12 +4,12 @@ import {
   sendBadRequest,
   sendConflict,
   sendSuccess,
+  sendUnauthorized,
 } from '../../utils/sendResponse.js';
 import {
-  findUserByEmail,
   updateUserById,
-  findUserByPhone,
   findUserById,
+  findUser,
 } from '../../models/userModel.js';
 import { sendCode } from '../../Services/sendCode.js';
 import {
@@ -25,8 +25,11 @@ export const updateFundi = async (req, res) => {
     if (err) return sendBadRequest(res, { message: 'Invalid form data' });
 
     try {
-      const user = req.user; // attached from requireAuth
-      const dbUser = await findUserById(user.id);
+      const dbUser = await findUserById(req.user.id);
+
+      if (!dbUser) {
+        return sendUnauthorized(res, { message: 'unauthorized' });
+      }
 
       // 1. Parse file if uploaded
       const profileFile = files.profileImg
@@ -48,13 +51,13 @@ export const updateFundi = async (req, res) => {
 
       // 3. Unique email checks (only if changed)
       if (email && email !== dbUser.email) {
-        const exists = await findUserByEmail(email);
+        const exists = await findUser({ email });
         if (exists) return sendConflict(res, { message: 'Email in use' });
       }
 
       // Unique phone check
       if (phone && phone !== dbUser.phone) {
-        const exists = await findUserByPhone(phone);
+        const exists = await findUser({ phone });
         if (exists) return sendConflict(res, { message: 'Phone in use' });
       }
 

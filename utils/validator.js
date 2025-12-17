@@ -20,6 +20,25 @@ const allowedFundiFields = [
 ];
 
 const allowedLoginFields = ['phone', 'password'];
+const jobFields = [
+  'title',
+  'description',
+  'category',
+  'location',
+  'budget',
+  'urgency',
+  'phone',
+];
+
+const jobCategories = [
+  'plumbing',
+  'electrical',
+  'carpentry',
+  'painting',
+  'cleaning',
+];
+
+const allowedUrgency = ['low', 'medium', 'high'];
 
 export const validateCustomer = (rawBody, { requirePassword = true } = {}) => {
   // whitelist
@@ -112,5 +131,35 @@ export const validateLogin = (rawBody) => {
 
   cleaned.phone = normalizedPhoneNumber(phone);
 
+  return cleaned;
+};
+
+export const validateJob = (rawBody) => {
+  const body = {};
+  for (const j of jobFields) {
+    if (rawBody[j] !== undefined) body[j] = rawBody[j];
+  }
+
+  const cleaned = sanitizeInput(body);
+
+  if (!cleaned.title) throw new ValidationError('job title is required');
+  if (cleaned.title.length < 5 || cleaned.title.length > 100)
+    throw new ValidationError('job title must be between 5 and 100 characters');
+  if (!cleaned.description)
+    throw new ValidationError('job description is required');
+  if (!cleaned.phone) throw new ValidationError('phone number is required');
+  if (!cleaned.category) throw new ValidationError('job category is required');
+  if (!jobCategories.includes(cleaned.category))
+    throw new ValidationError('invalid job category');
+  if (!cleaned.location) throw new ValidationError('job location is required');
+  if (!cleaned.budget) throw new ValidationError('budget is required');
+  if (isNaN(cleaned.budget) || Number(cleaned.budget) <= 0) {
+    throw new ValidationError('budget must be a valid positive number');
+  }
+  if (!cleaned.urgency) throw new ValidationError('urgency is required');
+  if (!allowedUrgency.includes(cleaned.urgency)) {
+    throw new ValidationError('invalid urgency level');
+  }
+  cleaned.phone = normalizedPhoneNumber(cleaned.phone);
   return cleaned;
 };
